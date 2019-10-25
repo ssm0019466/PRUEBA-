@@ -1,0 +1,119 @@
+<div class="main_content white_design">
+    <monitoring-tabs></monitoring-tabs>
+    <div class="tab-content">
+        <div class="monitor">
+            <h2>Open Associations</h2>
+            <h4>Press Start or Refresh to get associations</h4>
+            <div class="filter_line">
+                <div class="filter_block">
+                    <div class="filter">
+                        <div class="filter_block">
+                            <div class="line">
+                                <label>Timer (sec)</label>
+                                <input title="With a dot '.' you can set milliseconds for example: '0.6' = 600 milliseconds" type="text" [(ngModel)]="updaterate" [disabled]="!stopLoop" class="no-close-button"/>
+                            </div>
+                            <div class="line">
+                                <div *ngIf="stopLoop" class="dummy"></div>
+                                <mat-progress-spinner *ngIf="!stopLoop" mode="indeterminate" [diameter]="28" ></mat-progress-spinner>
+                                <button *ngIf="stopLoop" type="button" class="btn-default submit" (click)="monitor()" title="Start getting associations">Start</button>
+                                <button *ngIf="!stopLoop" type="button" class="btn-default submit" (click)="stopLoop=true" title="Stop auto refresh">Stop</button>
+                            </div>
+                        </div>
+                        <div class="filter_block height_2">
+                            <div class="line">
+                            </div>
+                            <div class="line">
+                                <button type="button" class="btn-default submit pull-left" (click)="refresh()" title="Get associations">Refresh</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="filter_line">
+                <div class="filter_block">
+                    <div class="filter single_block">
+                        <div class="filter_block">
+                            <div class="line">
+                                <div class="w45percent csv_button pull-left" (click)="downloadAssocImmage()" title="Download copy of the table as csv-file">
+                                    <span class="custom_icon csv_icon"></span>
+                                    <span class="text">Download copy</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <table  class="table table-inverse"  (mouseenter)="mauseEnter()" (mouseleave)="mauseLeave()">
+                <tr>
+                    <th>
+                        <span title="Sort by Local AE Title" class="pointer" (click)="sortBy('localAETitle')">
+                            Local AE Title
+                        </span>
+                    </th>
+                    <th>
+                        <span title="Sort by initiated" class="pointer" (click)="sortBy('initiated')">
+                            ⇆
+                        </span>
+                    </th>
+                    <th>
+                        <span title="Sort by Remote AE Title" class="pointer" (click)="sortBy('remoteAETitle')">
+                            Remote AE Title
+                        </span>
+                    </th>
+                    <th>
+                        <span  title="Sort by Invoked Ops." class="pointer" (click)="sortBy('invokedOps')">
+                            Invoked Ops.
+                        </span>
+                    </th>
+                    <th><span  title="Sort by Performed Ops." class="pointer" (click)="sortBy('performedOps')" >Performed Ops.</span></th>
+                    <th><span title="Sort by Connection time (Server)" class="pointer" (click)="sortBy('connectTime')" >Connection time (Server)</span></th>
+                    <th><span title="Sort by Connection time (Local)" class="pointer" (click)="sortBy('browserTime')" >Connection time (Browser)</span></th>
+                    <th><span title="Sort by Duration" class="pointer" (click)="sortBy('openSinceOrder')" >Duration (hh:mm:ss.SSS)</span></th>
+                    <th *ngIf="others">
+                        <span title="Sort by Other attributes" class="pointer" (click)="sortBy('others')" >Other attributes
+                        </span>
+                    </th>
+                    <th>
+                        Abort
+                    </th>
+                </tr>
+
+                <tr  *ngFor="let value of associationStatus| orderBy:propertyName:reverse">
+                    <ng-container *ngIf="value.initiated">
+                         <td>{{value.localAETitle}}</td>
+                         <td><span class="glyphicon glyphicon-arrow-right"></span></td>
+                         <td>{{value.remoteAETitle}}</td>
+                    </ng-container>
+                    <ng-container *ngIf="!value.initiated">
+                        <td>{{value.localAETitle}}</td>
+                        <td><span class="glyphicon glyphicon-arrow-left"></span></td>
+                        <td>{{value.remoteAETitle}}</td>
+                    </ng-container>
+                    <td>
+                        <div *ngFor="let m of value?.invokedOps | getKey">
+                            {{m._KEY}}-RQ/RSP : {{m._VALUE.RQ}}/{{m._VALUE.RSP}}
+                        </div>
+                    </td>
+                    <td>
+                        <div *ngFor="let m of value?.performedOps | getKey">
+                            {{m._KEY}}-RQ/RSP : {{m._VALUE.RQ}}/{{m._VALUE.RSP}}
+                        </div>
+                    </td>
+                    <td class="text-right" [innerHtml]="value.connectTime"></td>
+                    <td class="text-right" [innerHtml]="value.browserTime"></td>
+                    <td class="text-right" [innerHtml]="value.openSince"></td>
+                    <td *ngIf="others" class="others" [innerHtml]="value.others"></td>
+                    <td class="abort">
+                        <a class="crud_button" (click)="$event.preventDefault();abort(value.serialNo)">
+                            <i class="glyphicon glyphicon-remove"></i>
+                        </a>
+                    </td>
+
+                </tr>
+                <tr *ngIf="!associationStatus">
+                    <td colspan="9">No open associations found!</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
